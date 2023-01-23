@@ -1,37 +1,67 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
-const Button = ({children, handleChange, ...props}) => {
+const RadioButton = (props) => {
+  const { changed, id, isSelected, label, value } = props;
   return (
-    <span {...props} className='rounded-md text-white font-light py-2 px-3 bg-brandBlue'> 
-      <button onClick={handleChange}>
-        {children}
-      </button>
-    </span>
-  )
-}
+    <div className="RadioButton">
+      <input
+        id={id}
+        onChange={changed}
+        value={value}
+        type="radio"
+        checked={isSelected}
+      />
+      <label htmlFor={id}>{label}</label>
+    </div>
+  );
+};
+
 
 const Form = () => {
-  const [alquiler, setAlquiler] = useState('vivienda')
-
-  useEffect(() => {
-    console.log(alquiler)
-  }, [alquiler])
+  const [type, setType] = useState("vivienda");
+  const [values, setValues] = useState({ alquiler: '', expensas: ''})
   
+  const radioChangeHandler = (e) => {
+    setType(e.target.value)
+  }
+
+  const formatNumber = (e) => {
+    const fromInput = e.target.value.replace(/\.|\,/gi, '')
+    if(isNaN(Number(fromInput))) return
+    let formatted = new Intl.NumberFormat('es-AR', { currency: 'ARS'}).format(fromInput)
+    if(formatted === '0') formatted = ''
+    setValues(prev => ({...prev, [e.target.name]: formatted}))
+  }
 
   return (
     <form className='rounded-lg shadow-xl min-h-[384px] w-full max-w-md bg-white m-auto py-6 px-2 grid place-content-center'>
       <div>
         <div className='flex justify-between'>
-          <label className='text-slate-600'>Tipo de alquiler</label>
+          <label className='text-slate-600 text-md'>Tipo de alquiler</label>
           <div className='flex gap-4 relative h-8 border-[3px_solid_#03579A]'>
-            <div className={`absolute top-0 left-0 ${alquiler === 'vivienda' ? 'left-0' : 'right-0'} h-full w-[50%] bg-brandBlue z-0`}></div>
-            <button onClick={() => setAlquiler('vivienda')} type='button'>Vivienda</button>
-            <button onClick={() => setAlquiler('comercio')} type='button'>Comercio</button>
+            <RadioButton
+              changed={radioChangeHandler}
+              id="1"
+              step='0.01'
+              isSelected={type === "vivienda"}
+              label="Vivienda"
+              value="vivienda"
+            />
+            <RadioButton
+              changed={radioChangeHandler}
+              id="2"
+              isSelected={type === "comercio"}
+              label="Comercio"
+              value="comercio"
+            />
           </div>
         </div>
         <div className="flex gap-1   items-center justify-center mt-4">
           <p className='text-brandBlue text-xl'>$</p>
           <input
+            name='alquiler'
+            value={values.alquiler}
+            onChange={formatNumber}
             placeholder='Monto de alquiler'
             type="text"
             className='w-full max-w-[300px] h-10 rounded-md bg-slate-100 px-2'
@@ -40,6 +70,9 @@ const Form = () => {
         <div className="flex gap-1 items-center justify-center mt-4">
           <p className='text-brandBlue text-xl'>$</p>
           <input
+            value={values.expensas}
+            onChange={formatNumber}
+            name='expensas'
             placeholder='Monto de expensas'
             type="text"
             className='w-full max-w-[300px] h-10 rounded-md bg-slate-100 px-2'
@@ -47,11 +80,11 @@ const Form = () => {
         </div>
         <div className="flex flex-wrap gap-3 mt-2 items-center flex-col">
           <p className='text-slate-600'>Duración de alquiler</p>
-          <div className="flex gap-3 flex-wrap justify-center">
-            <button type='button' className='py-2 px-3 bg-brandBlue text-white rounded-md'>36 Meses</button>
-            <button type='button' className='py-2 px-3 bg-brandBlue text-white rounded-md'>48 Meses</button>
-            <button type='button' className='py-2 px-3 bg-brandBlue text-white rounded-md'>60 Meses</button>
-          </div>
+          <ul className="flex gap-3 flex-wrap justify-center">
+            <li className='py-2 px-3 bg-brandBlue text-white rounded-md'>36 Meses</li>
+            <li className='py-2 px-3 bg-brandBlue text-white rounded-md'>48 Meses</li>
+            <li className='py-2 px-3 bg-brandBlue text-white rounded-md'>60 Meses</li>
+          </ul>
         </div>
         <div className=' mt-12'>
           <button className='bg-brandBlue py-2 px-3 text-white rounded-md w-full'>Calcular</button>
